@@ -1,101 +1,3 @@
-import java.lang.NumberFormatException
-import kotlin.math.pow
-import kotlin.math.sqrt
-
-/** задаем операторы */
-enum class Operation {
-    PLUS,
-    MINUS,
-    MULTIPLY,
-    DIVIDE,
-    POWER,
-    MODULE,
-    ROOT,
-    FACTORIAL;
-    /**SINE, // %  разобраться с префиксной записью
-    ARCSINE,
-    COSINE,//#
-    ARCCOS,
-    TANGENT,
-    COTANGEL,
-    ARCTANGEL,
-    COSECANT,
-    SECANT;*/
-
-    /**описываем операторы*/
-
-    fun requireLeftValue(): Boolean { // в разных случаях нам нужны или нет значение слева
-        return when (this) { //
-            FACTORIAL -> true
-            else -> true
-        }
-    }
-
-    fun requireRightValue(): Boolean {  // нуж
-        return when (this) {
-            FACTORIAL -> false
-            else -> true
-        }
-    }
-
-
-    fun execute(a: Float, b: Float): Float {
-        when {
-            this == PLUS -> { return a + b }
-            this == MINUS -> { return a - b }
-            this == MULTIPLY -> { return a * b }
-            this == DIVIDE -> { return a / b }
-            this == POWER -> { return a.toDouble().pow(b.toDouble()).toFloat() }
-            this == MODULE -> { return a % b }
-            this == ROOT -> {
-                return when (a) {
-                    2f -> {
-                        sqrt(b.toDouble()).toFloat()
-                    }
-                    3f -> {
-                        Math.cbrt(b.toDouble()).toFloat()
-                    }
-                    else -> {
-                        val factor = 1.0 / a
-                        b.toDouble().pow(factor).toFloat()
-                    }
-                }
-            }
-            this == FACTORIAL -> {
-                if (a > 34f) { // факториал считается до 34!
-                    throw IllegalArgumentException("Число под знаком факториала слишком велико $a")
-                }
-                return factorial(a.toInt())
-            }
-            else -> throw IllegalArgumentException("Неизвестный оператор: $name")
-        }
-
-    }
-
-    private fun factorial(i: Int): Float { // факториал
-        var result = 1f // f - тип float, сокращенно
-        for (j in 1..i) {
-            result *= j.toFloat()
-        }
-        return result
-    }
-}
-
-/**Оператор из символа*/
-fun getOperationForChar(c: Char): Operation? { // обработка оператора для символов
-    when (c) {
-        '+' -> { return Operation.PLUS }
-        '-' -> { return Operation.MINUS }
-        '/' -> { return Operation.DIVIDE }
-        '*' -> { return Operation.MULTIPLY }
-        '^' -> { return Operation.POWER }
-        '√' -> { return Operation.ROOT }
-        '!' -> { return Operation.FACTORIAL }
-        else -> return null
-    }
-}
-fun isOperator(c: Char) = getOperationForChar(c) != null
-
 data class Value(val textualValue: String) { // получит expr строку
 
     var resolvedValue = Float.NaN
@@ -159,8 +61,8 @@ data class Value(val textualValue: String) { // получит expr строку
                 if (bracketDepth != 1) {
                     throw IllegalArgumentException("Скобки расставлены неверно")
                 }
-            } else if (isOperator(c)) {
-                tokens.add(getOperationForChar(c)!!)
+            } else if (Operation.isOperator(c)) {
+                tokens.add(Operation.getOperationForChar(c)!!)
             } else if (!c.isDigit() && c != '_' && c != '.') {
                 println("Нераспознанный символ: $c. Игнорируется")
             }
@@ -271,28 +173,6 @@ fun flatten(tokens: ArrayList<Any>, vararg ops: Operation) {
  * находит ииндекс в заданном списке ArrayList
  */
 fun findIndex(vararg objs: Any, list: ArrayList<Any>) = list.indices.firstOrNull { i -> list[i] == objs[0] && objs.indices.none { list[i + it] != objs[it] } } ?: -1
-
-fun main() {
-    println("Определение переменных !x = 3")
-    println("Определение функций !f(x) = x^2")
-    println("Поддерживаемые операторы: % ! ^ √ * / + - > < = & |")
-    println("Логические операторы буду считать любое число больше 1 - true, меньше - false")
-    println("Логические операторы возвращают 1 - true, 0 - false")
-    println("Обозначать отрицательные числа: _, а не - ")
-
-    val env = ExpressionEnvironment()
-    println("Константы:")
-
-    env.parseAndPrint("!e = 3")
-    env.parseAndPrint("!p = 3.14")
-
-    while (true) {
-        println("Введите выражение:")
-        val exprRaw = readLine() ?: continue
-
-        env.parseAndPrint(exprRaw)
-    }
-}
 
 const val VALID_VAR_NAMES = "abcdefghijklmnoqprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" //функция
 
@@ -428,7 +308,7 @@ class ExpressionEnvironment {
             for (i in expr.indices) {
                 val c = expr[i]
                 if (c == '(' && i > 0) {
-                    if ((expr[i - 1].isLetterOrDigit() || expr[i - 1] == ')') && !isOperator(expr[i - 1])) {
+                    if ((expr[i - 1].isLetterOrDigit() || expr[i - 1] == ')') && !Operation.isOperator(expr[i - 1])) {
                         // добавляем умножение
                         expr = expr.replaceRange(i, i + 1, "*(")
                         bracketsResolved = false
@@ -436,7 +316,7 @@ class ExpressionEnvironment {
                     }
                 }
                 else if (c == ')' && i < expr.length - 1) {
-                    if ((expr[i + 1].isLetterOrDigit() || expr[i + 1] == '(') && !isOperator(expr[i + 1])) {
+                    if ((expr[i + 1].isLetterOrDigit() || expr[i + 1] == '(') && !Operation.isOperator(expr[i + 1])) {
                         expr = expr.replaceRange(i, i + 1, ")*")
                         bracketsResolved = false
                         break
