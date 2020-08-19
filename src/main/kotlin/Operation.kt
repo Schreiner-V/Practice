@@ -1,4 +1,5 @@
 import kotlin.math.pow
+import kotlin.math.round
 import kotlin.math.sqrt
 
 /** задаем операторы */
@@ -51,7 +52,7 @@ enum class Operation {
         else -> true
     }
 
-    fun execute(a: Float, b: Float) = when(this) {
+    fun execute(a: Double, b: Double) = when(this) {
         PLUS -> a + b
         MINUS -> a - b
         MULTIPLY -> a * b
@@ -62,21 +63,20 @@ enum class Operation {
         FACTORIAL -> executeFactorial(a)
     }
 
-    private fun executeRoot(a: Float, b: Float) = when (a) {
-        2f -> sqrt(b)
-        // Math.cbrt works only with doubles
-        3f -> Math.cbrt(b.toDouble()).toFloat()
-        else -> b.pow(1.0f / a)
+    private fun executeRoot(a: Double, b: Double) = when (a) {
+        2.0 -> sqrt(b)
+        3.0 -> Math.cbrt(b)
+        else -> round(b.pow(1.0f / a))
     }
 
-    private fun executeFactorial(a: Float): Float {
-        if (a > 34f) { // факториал считается до 34!
+    private fun executeFactorial(a: Double): Double {
+        if (a > 170.0) { // факториал считается до 170!
             throw IllegalArgumentException("Число под знаком факториала слишком велико $a")
         }
 
         return (1..a.toInt())
-            // Каждый входящий Int превращаем во Float
-            .map { it.toFloat() }
+            // Каждый входящий Int превращаем во Double
+            .map { it.toDouble() }
             // Производим умножение. accumulator - будет результат, current - новое значение
             // Так как цикл начинается с 1, допустим a = 3, то будет вот так:
             // 1 - accumulator просто будет равен 1
