@@ -4,11 +4,11 @@ const val VALID_VAR_NAMES = "abcdefghijklmnoqprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY
 /** различные проверки, описыаем переменные и функции */
 class ExpressionEnvironment {
 
-    private val vars = HashMap<Char, Float>() // создаем переменную с ключом Char и значением Float
+    private val vars = HashMap<Char, Double>() // создаем переменную с ключом Char и значением Double
     private val funcs = HashMap<Pair<Char, Char>, String>() // создаем переменную с функциями с парой !!!!!!!!!!!!!!
 
     /** так как запись ведется через map, можем добавить новую запись через .put */
-    fun putVariable(name: Char, value: Float) = vars.put(name, value) // функция c переменными
+    fun putVariable(name: Char, value: Double) = vars.put(name, value) // функция c переменными
     fun putFunction(function: Pair<Char, Char>, value: String) = funcs.put(function, value) //функция с функциями..
 
     fun parseAndPrint(exprRaw: String) {

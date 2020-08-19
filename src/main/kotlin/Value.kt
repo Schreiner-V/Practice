@@ -1,12 +1,12 @@
 // TODO слишком большой класс. Функцию resolve надо бы разбить на нескольбо маленьких и простых
 data class Value(val textualValue: String) { // получит expr строку
 
-    var resolvedValue = Float.NaN
+    var resolvedValue = Double.NaN
 
     /** Разрешает выражение и возвращает его, кэширует вполе resolvedValue */
-    fun resolve(): Float {
+    fun resolve(): Double {
         try {
-            resolvedValue = textualValue.toFloat()
+            resolvedValue = textualValue.toDouble()
         } catch (e: NumberFormatException) {
         }// исключение числового формата
 
@@ -32,7 +32,7 @@ data class Value(val textualValue: String) { // получит expr строку
                 // перемещаем текущий число в стек
                 if (numStartIndex != -1) {
                     // с numStartIndex до Index
-                    val num = textualValue.substring(numStartIndex, index).replace("_", "-").toFloat()
+                    val num = textualValue.substring(numStartIndex, index).replace("_", "-").toDouble()
                     tokens.add(num)
                 }
                 numStartIndex = -1
@@ -74,7 +74,7 @@ data class Value(val textualValue: String) { // получит expr строку
 
         if (numStartIndex != -1) {
 
-            val num = textualValue.substring(numStartIndex, textualValue.length).replace("_", "-").toFloat()
+            val num = textualValue.substring(numStartIndex, textualValue.length).replace("_", "-").toDouble()
             tokens.add(num)
         }
 
@@ -89,7 +89,7 @@ data class Value(val textualValue: String) { // получит expr строку
         if (tokens.size != 1) {
             throw IllegalArgumentException("Невозможно полностью разрешить выражение: ${tokens.joinToString(separator = " ")}")
         }
-        resolvedValue = tokens[0] as Float
+        resolvedValue = tokens[0] as Double
 
         return resolvedValue
     }

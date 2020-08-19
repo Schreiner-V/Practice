@@ -40,7 +40,7 @@ fun flatten(tokens: ArrayList<Any>, vararg ops: Operation) {
             var topBreak = false
             for (o in ops) {
                 if (tokens[i] == o) {
-                    // левый и правый токен должен быть float
+                    // левый и правый токен должен быть Double
                     if (i == 0 && o.requireLeftValue()) {
                         throw IllegalArgumentException("Выражение не может начинаться с оператора: $o")
                     } else if (i == tokens.size - 1 && o.requireRightValue()) {
@@ -48,11 +48,10 @@ fun flatten(tokens: ArrayList<Any>, vararg ops: Operation) {
                     }
 
                     if (o.requireRightValue() && o.requireLeftValue()) {
-                        val a = tokens[i - 1] as? Float ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
-                        val b = tokens[i + 1] as? Float ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
+                        val a = tokens[i - 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
+                        val b = tokens[i + 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
 
-                        // TODO temporary .toDouble()
-                        val v = o.execute(a.toDouble(), b.toDouble())
+                        val v = o.execute(a, b)
 
                         val localIndex = findIndex(tokens[i - 1], tokens[i], tokens[i + 1], list = tokenSwap)
                         for (j in 0..2) {
@@ -63,10 +62,9 @@ fun flatten(tokens: ArrayList<Any>, vararg ops: Operation) {
                         topBreak = true
                         break
                     } else if (o.requireRightValue()) {
-                        val b = tokens[i + 1] as? Float ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
+                        val b = tokens[i + 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
 
-                        // TODO temporary .toDouble()
-                        val v = o.execute(0.0, b.toDouble())
+                        val v = o.execute(0.0, b)
 
                         val localIndex = findIndex(tokens[i], tokens[i + 1], list = tokenSwap)
                         for (j in 0..1) {
@@ -77,10 +75,9 @@ fun flatten(tokens: ArrayList<Any>, vararg ops: Operation) {
                         topBreak = true
                         break
                     } else if (o.requireLeftValue()) {
-                        val a = tokens[i - 1] as? Float ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
+                        val a = tokens[i - 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
 
-                        // TODO temporary .toDouble()
-                        val v = o.execute(a.toDouble(), 0.0)
+                        val v = o.execute(a, 0.0)
 
                         val localIndex = findIndex(tokens[i - 1], tokens[i], list = tokenSwap)
                         for (j in 0..1) {
