@@ -7,12 +7,8 @@ class ExpressionEnvironment {
     private val vars = HashMap<Char, Double>() // создаем переменную с ключом Char и значением Double
     private val funcs = HashMap<Pair<Char, Char>, String>() // создаем переменную с функциями с парой !!!!!!!!!!!!!!
 
-    /** так как запись ведется через map, можем добавить новую запись через .put */
-    fun putVariable(name: Char, value: Double) = vars.put(name, value) // функция c переменными
-    fun putFunction(function: Pair<Char, Char>, value: String) = funcs.put(function, value) //функция с функциями..
-
     fun parseAndPrint(exprRaw: String) {
-        var varname: Char? = null //
+        var varname: Char? = null
         var expr: String = exprRaw.replace("\\s".toRegex(), "") //входная строка для обработки без пробелов и табов
         /** проверка на функцию или переменную */
         if (expr[0] == '!') { //если есть ключевой символ
@@ -21,41 +17,29 @@ class ExpressionEnvironment {
                 val funcName = expr[1] // имя переменной
                 val funcVar = expr[3] // имя переменной
 
-                if (!VALID_VAR_NAMES.contains(funcName)) { // проверка на валидность имени аргумента
-                    throw IllegalArgumentException("Некорректное имя функци $varname.")
-                }
-                if (!VALID_VAR_NAMES.contains(funcVar)) { // проверка на валидноть имени аргумента
-                    throw IllegalArgumentException("Некорректное имя аргумента $varname.")
-                }
+                // проверка на валидность имени аргумента
+                require(VALID_VAR_NAMES.contains(funcName)) { "Некорректное имя функци $varname." }
+                // проверка на валидноть имени аргумента
+                require(VALID_VAR_NAMES.contains(funcVar)) { "Некорректное имя аргумента $varname." }
 
-                putFunction(funcName to funcVar, expr.substring(6)) //  пополняем функцию с функциями
+                funcs[funcName to funcVar] = expr.substring(6) //  пополняем функцию с функциями
                 println("$funcName($funcVar)=${funcs[funcName to funcVar]}") // выводим фунцию
                 return // локальный возврат
             } else {
                 /** если не функция, то переменная */
                 varname = expr[1] // имя переменной
-                if (!VALID_VAR_NAMES.contains(varname)) {
-                    throw IllegalArgumentException("Некорректное имя переменной $varname")
-                }
-                if (expr[2] != '=') {
-                    throw IllegalArgumentException("Имя переменной - один символ, далее - '=' ")
-                }
+                require(VALID_VAR_NAMES.contains(varname)) { "Некорректное имя переменной $varname" }
+                require(expr[2] == '=') { "Имя переменной - один символ, далее - '=' " }
                 expr = expr.substring(3) // подстрока с индекса 3
-
             }
         } else if (expr[0] == '?') {
             // Вывод функции по запросу
             if (expr.length >= 5 && expr[2] == '(' && expr[4] == ')') {
-
                 val funcName = expr[1]
                 val funcVar = expr[3]
 
-                if (!VALID_VAR_NAMES.contains(funcName)) {
-                    throw IllegalArgumentException("Некорректное имя функции $varname.")
-                }
-                if (!VALID_VAR_NAMES.contains(funcVar)) {
-                    throw IllegalArgumentException("Некорректный аргумент функции $varname")
-                }
+                require(VALID_VAR_NAMES.contains(funcName)) { "Некорректное имя функции $varname." }
+                require(VALID_VAR_NAMES.contains(funcVar)) { "Некорректный аргумент функции $varname" }
 
                 println("$varname=${vars[varname]}")
                 return // локальный возврат
@@ -73,7 +57,7 @@ class ExpressionEnvironment {
                     } else if (expr[seek] == ')') {
                         if (bracketDepth == 0) {
                             val funContents = expr.substring(funStart, seek)
-                            val funReplaced = "(" + value.replace(key.second.toString(), "($funContents)" + ")")
+                            val funReplaced = "(" + value.replace(key.second.toString(), "($funContents))")
                             expr = expr.replaceRange(funStart - 2, seek + 1, funReplaced) // замена функции на обработанную
                             bracketDepth = -1
                             break
@@ -95,7 +79,6 @@ class ExpressionEnvironment {
                 while (expr.contains(c)) { // пока c содержится во входной строке
                     var mulLeft = false //
                     var mulRight = false
-
                     var index = -1
 
                     for (i in expr.indices) { // поиск по всей строке
@@ -152,15 +135,14 @@ class ExpressionEnvironment {
             }
         }
 
-        val v = Value(expr) // class Value!!!
-        v.resolve()
+        val value = Value(expr)
+        value.resolve()
 
         if (varname != null) {
             print("$varname=")
-            putVariable(varname, v.resolvedValue)
+            vars[varname] = value.resolvedValue
         }
 
-        println(v.resolvedValue)
+        println(value.resolvedValue)
     }
-
 }

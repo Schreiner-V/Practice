@@ -2,12 +2,15 @@
 // Сейчам почему-то 1+1 выражение он поймёт, а (1+1) нет, говорит, что скобки расставлены не верно, хотя это не так
 
 fun main() {
-    println("Определение переменных !x = 3")
-    println("Определение функций !f(x) = x^2")
-    println("Поддерживаемые операторы: % ! ^ √ * / + - > < = & |")
-    println("Логические операторы буду считать любое число больше 1 - true, меньше - false")
-    println("Логические операторы возвращают 1 - true, 0 - false")
-    println("Обозначать отрицательные числа: _, а не - ")
+    println(
+        """Определение переменных !x = 3
+           |Определение функций !f(x) = x^2
+           |Поддерживаемые операторы: % ! ^ √ * / + - > < = & |
+           |Логические операторы буду считать любое число больше 1 - true, меньше - false
+           |Логические операторы возвращают 1 - true, 0 - false
+           |Обозначать отрицательные числа: _, а не - 
+           |Чтобы остановить приложение введите exit""".trimMargin()
+    )
 
     val env = ExpressionEnvironment()
     println("Константы:")
@@ -18,6 +21,8 @@ fun main() {
     while (true) {
         println("Введите выражение:")
         val exprRaw = readLine() ?: continue
+
+        if (exprRaw.equals("exit", ignoreCase = true)) break
 
         env.parseAndPrint(exprRaw)
     }
@@ -39,55 +44,55 @@ fun flatten(tokens: ArrayList<Any>, vararg ops: Operation) {
         for (i in tokens.indices) {
             var topBreak = false
             for (o in ops) {
-                if (tokens[i] == o) {
-                    // левый и правый токен должен быть Double
-                    if (i == 0 && o.requireLeftValue()) {
-                        throw IllegalArgumentException("Выражение не может начинаться с оператора: $o")
-                    } else if (i == tokens.size - 1 && o.requireRightValue()) {
-                        throw IllegalArgumentException("Выражение не может заканчиваться оператором: $o")
+                if (tokens[i] != o) continue
+
+                // левый и правый токен должен быть Double
+                if (i == 0 && o.requireLeftValue()) {
+                    throw IllegalArgumentException("Выражение не может начинаться с оператора: $o")
+                } else if (i == tokens.size - 1 && o.requireRightValue()) {
+                    throw IllegalArgumentException("Выражение не может заканчиваться оператором: $o")
+                }
+
+                if (o.requireRightValue() && o.requireLeftValue()) {
+                    val a = tokens[i - 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
+                    val b = tokens[i + 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
+
+                    val v = o.execute(a, b)
+
+                    val localIndex = findIndex(tokens[i - 1], tokens[i], tokens[i + 1], list = tokenSwap)
+                    for (j in 0..2) {
+                        tokenSwap.removeAt(localIndex)
                     }
 
-                    if (o.requireRightValue() && o.requireLeftValue()) {
-                        val a = tokens[i - 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
-                        val b = tokens[i + 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
+                    tokenSwap.add(localIndex, v)
+                    topBreak = true
+                    break
+                } else if (o.requireRightValue()) {
+                    val b = tokens[i + 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
 
-                        val v = o.execute(a, b)
+                    val v = o.execute(0.0, b)
 
-                        val localIndex = findIndex(tokens[i - 1], tokens[i], tokens[i + 1], list = tokenSwap)
-                        for (j in 0..2) {
-                            tokenSwap.removeAt(localIndex)
-                        }
-
-                        tokenSwap.add(localIndex, v)
-                        topBreak = true
-                        break
-                    } else if (o.requireRightValue()) {
-                        val b = tokens[i + 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i + 1]}")
-
-                        val v = o.execute(0.0, b)
-
-                        val localIndex = findIndex(tokens[i], tokens[i + 1], list = tokenSwap)
-                        for (j in 0..1) {
-                            tokenSwap.removeAt(localIndex)
-                        }
-
-                        tokenSwap.add(localIndex, v)
-                        topBreak = true
-                        break
-                    } else if (o.requireLeftValue()) {
-                        val a = tokens[i - 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
-
-                        val v = o.execute(a, 0.0)
-
-                        val localIndex = findIndex(tokens[i - 1], tokens[i], list = tokenSwap)
-                        for (j in 0..1) {
-                            tokenSwap.removeAt(localIndex)
-                        }
-
-                        tokenSwap.add(localIndex, v)
-                        topBreak = true
-                        break
+                    val localIndex = findIndex(tokens[i], tokens[i + 1], list = tokenSwap)
+                    for (j in 0..1) {
+                        tokenSwap.removeAt(localIndex)
                     }
+
+                    tokenSwap.add(localIndex, v)
+                    topBreak = true
+                    break
+                } else if (o.requireLeftValue()) {
+                    val a = tokens[i - 1] as? Double ?: throw IllegalArgumentException("Цепные операторы: $o и ${tokens[i - 1]}")
+
+                    val v = o.execute(a, 0.0)
+
+                    val localIndex = findIndex(tokens[i - 1], tokens[i], list = tokenSwap)
+                    for (j in 0..1) {
+                        tokenSwap.removeAt(localIndex)
+                    }
+
+                    tokenSwap.add(localIndex, v)
+                    topBreak = true
+                    break
                 }
             }
 
