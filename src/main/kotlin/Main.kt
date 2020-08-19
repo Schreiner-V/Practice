@@ -1,6 +1,8 @@
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.geometry.Side
 import javafx.scene.control.TabPane
+import org.mariuszgromada.math.mxparser.Expression
 import tornadofx.*
 
 // TODO Считай самое главное - надо добавить тесты на все возможные случаи. Будет гораздо удобнее
@@ -21,19 +23,33 @@ class MyView : View() {
 }
 
 class Tab1 : Fragment("Решение") {
+    private val inputString = SimpleStringProperty()
+    private val logString = SimpleStringProperty()
+
     override val root = form {
         fieldset("Решение", labelPosition = Orientation.VERTICAL) {
             field("Введите функцию") {
-                textfield() {
+                textfield(inputString) {
                     requestFocus()
                 }
                 button("ОК") {
+                    action {
+                        this.isDisable = true
+                        runAsync {
+                            logString.value = "1"
+                            val e = Expression(inputString.value)
+                            val result = e.calculate()
 
+                            println("Result = $result")
+                        } ui {
+                            this.isDisable = false
+                        }
+                    }
                 }
             }
         }
         fieldset("Ход выполнения") {
-            textarea {
+            textarea(logString) {
             }
         }
     }
