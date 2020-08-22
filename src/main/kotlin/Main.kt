@@ -1,12 +1,14 @@
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
+import javafx.geometry.Orientation.VERTICAL
 import javafx.geometry.Side
 import javafx.scene.control.TabPane
+import javafx.scene.control.TextArea
 import org.mariuszgromada.math.mxparser.Expression
 import tornadofx.*
-
-// TODO Считай самое главное - надо добавить тесты на все возможные случаи. Будет гораздо удобнее
-// Сейчам почему-то 1+1 выражение он поймёт, а (1+1) нет, говорит, что скобки расставлены не верно, хотя это не так
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
+import kotlin.time.measureTimedValue
 
 class MyApp : App(MyView::class)
 
@@ -24,10 +26,11 @@ class MyView : View() {
 
 class Tab1 : Fragment("Решение") {
     private val inputString = SimpleStringProperty()
-    private val logString = SimpleStringProperty()
+    private var logsTextArea: TextArea by singleAssign()
 
+    @ExperimentalTime
     override val root = form {
-        fieldset("Решение", labelPosition = Orientation.VERTICAL) {
+        fieldset("Решение", labelPosition = VERTICAL) {
             field("Введите функцию") {
                 textfield(inputString) {
                     requestFocus()
@@ -36,11 +39,15 @@ class Tab1 : Fragment("Решение") {
                     action {
                         this.isDisable = true
                         runAsync {
-                            logString.value = "1"
-                            val e = Expression(inputString.value)
-                            val result = e.calculate()
-
-                            println("Result = $result")
+                            logsTextArea.appendText(
+                                """-----------------------
+                                   |Calculation started...
+                                   |""".trimMargin()
+                            )
+                            val measured = measureTimedValue {
+                                Expression(inputString.value).calculate()
+                            }
+                            logsTextArea.appendText("Calculation finished in ${measured.duration}. Result = ${measured.value}\n")
                         } ui {
                             this.isDisable = false
                         }
@@ -49,7 +56,12 @@ class Tab1 : Fragment("Решение") {
             }
         }
         fieldset("Ход выполнения") {
-            textarea(logString) {
+            textarea() {
+                logsTextArea = this
+
+                isEditable = false
+                isMouseTransparent = true
+                isFocusTraversable = false
             }
         }
     }
@@ -57,7 +69,7 @@ class Tab1 : Fragment("Решение") {
 
 class Tab2 : Fragment("Теория") {
     override val root = form {
-        fieldset("Теория", labelPosition = Orientation.VERTICAL) {
+        fieldset("Теория", labelPosition = VERTICAL) {
             textarea {
             }
         }
@@ -66,7 +78,7 @@ class Tab2 : Fragment("Теория") {
 
 class Tab3 : Fragment("Тест") {
     override val root = form {
-        fieldset("Тест", labelPosition = Orientation.VERTICAL) {
+        fieldset("Тест", labelPosition = VERTICAL) {
             textarea {
             }
         }
