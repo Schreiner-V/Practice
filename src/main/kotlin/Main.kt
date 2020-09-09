@@ -93,42 +93,7 @@ class Tab3 : Fragment("Тест") {
 
 fun main(args: Array<String>) {
     launch<MyApp>(args)
-
-//    println(
-//        """Определение переменных !x = 3
-//           |Определение функций !f(x) = x^2
-//           |Поддерживаемые операторы: % ! ^ √ * / + - > < = & |
-//           |Логические операторы буду считать любое число больше 1 - true, меньше - false
-//           |Логические операторы возвращают 1 - true, 0 - false
-//           |Обозначать отрицательные числа: _, а не -
-//           |Чтобы остановить приложение введите exit""".trimMargin()
-//    )
-//
-//    val env = ExpressionEnvironment()
-//    println("Константы:")
-//
-//    env.parseAndPrint("!e = 3")
-//    env.parseAndPrint("!p = 3.14")
-//
-//    while (true) {
-//        println("Введите выражение:")
-//        val exprRaw = readLine() ?: continue
-//
-//        if (exprRaw.equals("exit", ignoreCase = true)) break
-//
-//        env.parseAndPrint(exprRaw)
-//    }
 }
 
-// TODO пока не смотрел - надо разобраться
-
-/**
- * Сглаживает токены, указанные в списке, и упрощает их.
- */
 
 
-/**
- * находит ииндекс в заданном списке ArrayList
- */
-fun findIndex(vararg objs: Any, list: ArrayList<Any>) =
-    list.indices.firstOrNull { i -> list[i] == objs[0] && objs.indices.none { list[i + it] != objs[it] } } ?: -1
