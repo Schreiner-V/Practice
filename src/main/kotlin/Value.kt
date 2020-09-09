@@ -1,5 +1,5 @@
 // TODO слишком большой класс. Функцию resolve надо бы разбить на нескольбо маленьких и простых
-data class Value(val textualValue: String) { // получит expr строку
+/*data class Value(val textualValue: String) { // получит expr строку
 
     var resolvedValue = Double.NaN
 
@@ -94,3 +94,4 @@ data class Value(val textualValue: String) { // получит expr строку
         return resolvedValue
     }
 }
+*/

@@ -1,5 +1,5 @@
 // TODO тут вообще страшно. Надо изучить
-
+/*
 const val VALID_VAR_NAMES = "abcdefghijklmnoqprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 /** различные проверки, описыаем переменные и функции */
 class ExpressionEnvironment {
@@ -146,3 +146,4 @@ class ExpressionEnvironment {
         println(value.resolvedValue)
     }
 }
+*/
