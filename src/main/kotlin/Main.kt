@@ -1,15 +1,11 @@
-import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.geometry.Orientation
 import javafx.geometry.Orientation.VERTICAL
 import javafx.geometry.Side
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextArea
-import javafx.scene.text.Text
 import org.mariuszgromada.math.mxparser.Expression
 import tornadofx.*
 import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
 
 class MyApp : App(MyView::class)
@@ -44,8 +40,7 @@ class Tab1 : Fragment("Решение") {
                 }
                 button("ОК") {
                     action {
-
-                        var inpStrMod = inputString.value.replace("\\s".toRegex(),"") // убираем пустоты
+                        var inpStrMod = inputString.value.replace("\\s".toRegex(), "") // убираем пустоты
                         inpStrMod = inpStrMod.substringAfter("f(x)=") //после "f(x)="
 
                         this.isDisable = true
@@ -55,8 +50,8 @@ class Tab1 : Fragment("Решение") {
                                    |Calculation started...
                                    |""".trimMargin()
                             )
-                            val measured = measureTimedValue { //
-                                Expression(inpStrMod).calculate()
+                            val measured = measureTimedValue {
+                                inpStrMod.calculate()
                             }
                             logsTextArea.appendText("Calculation finished in ${measured.duration}. Result = ${measured.value}\n")
                         } ui {
@@ -81,7 +76,7 @@ class Tab1 : Fragment("Решение") {
 class Tab2 : Fragment("Теория") {
     override val root = form {
         fieldset("Теория", labelPosition = VERTICAL) {
-            textarea{}
+            textarea {}
 
 
         }
@@ -98,16 +93,16 @@ class Tab3 : Fragment("Тест") {
 }
 //получаем x-3x
 
+fun replaceAndCount(string: String, value: Double): Double = string
+    .replace("x", "$value")
+    .calculate()
 
-fun replaceAndCount(string: String, value: Double){
-    var inpStrMod = string.replace("x".toRegex(),"$value") // заменяем
-    /**Считаем и отдаем. нужно вернуть */
-    return
-    // возвращаем посчитанное
+private fun String.calculate(): Double {
+    val expression = Expression(this)
+    return expression.calculate()
 }
 
-fun bisection(left: Double,right: Double,accuracy: Double, function: String) {
-
+fun bisection(left: Double, right: Double, accuracy: Double, function: String): Double {
     var newLeftEdge: Double = left
     var newRightEdge: Double = right
     var result: Double = newLeftEdge
@@ -115,16 +110,15 @@ fun bisection(left: Double,right: Double,accuracy: Double, function: String) {
     while (newRightEdge - newLeftEdge >= accuracy) {
         result = (newLeftEdge + newRightEdge) / 2
         //замена + калькулятор для result
-        val fResult = replaceAndCount("3*x+3",value = result)
+        val fResult = replaceAndCount("3*x+3", value = result)
         val fLeft = replaceAndCount("3*x+3", value = newLeftEdge)
 
-        if (fResult == 0.0){
+        if (fResult == 0.0) {
             break
         }
         if (fResult * fLeft < 0) {
             newRightEdge = result
-        }
-        else{
+        } else {
             newLeftEdge = result
         }
     }
