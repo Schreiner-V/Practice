@@ -45,7 +45,7 @@ class Tab1 : Fragment("Решение") {
                 button("ОК") {
                     action {
 
-                        var inpStrMod = inputString.value.replace("\\s".toRegex(),"") // убираем нули
+                        var inpStrMod = inputString.value.replace("\\s".toRegex(),"") // убираем пустоты
                         inpStrMod = inpStrMod.substringAfter("f(x)=") //после "f(x)="
 
                         this.isDisable = true
@@ -55,7 +55,7 @@ class Tab1 : Fragment("Решение") {
                                    |Calculation started...
                                    |""".trimMargin()
                             )
-                            val measured = measureTimedValue {
+                            val measured = measureTimedValue { //
                                 Expression(inpStrMod).calculate()
                             }
                             logsTextArea.appendText("Calculation finished in ${measured.duration}. Result = ${measured.value}\n")
@@ -98,20 +98,30 @@ class Tab3 : Fragment("Тест") {
 }
 //получаем x-3x
 
-/*fun bisection(left: Double,right: Double,accuracy: Double){
 
-    var newLeftEdge:Double = left
-    var newRightEdge:Double = right
-    var result:Double = newLeftEdge
+fun replaceAndCount(string: String, value: Double){
+    var inpStrMod = string.replace("x".toRegex(),"$value") // заменяем
+    /**Считаем и отдаем. нужно вернуть */
+    return
+    // возвращаем посчитанное
+}
+
+fun bisection(left: Double,right: Double,accuracy: Double, function: String) {
+
+    var newLeftEdge: Double = left
+    var newRightEdge: Double = right
+    var result: Double = newLeftEdge
 
     while (newRightEdge - newLeftEdge >= accuracy) {
         result = (newLeftEdge + newRightEdge) / 2
         //замена + калькулятор для result
-        
-        if (f(result) == 0.0){
+        val fResult = replaceAndCount("3*x+3",value = result)
+        val fLeft = replaceAndCount("3*x+3", value = newLeftEdge)
+
+        if (fResult == 0.0){
             break
         }
-        if (f(result) * f(newLeftEdge) < 0) {
+        if (fResult * fLeft < 0) {
             newRightEdge = result
         }
         else{
@@ -120,10 +130,13 @@ class Tab3 : Fragment("Тест") {
     }
     return result
 }
-*/
-fun replaceAndCount(){
 
+
+/*fun replaceAndCount(string: String,value: Double){
+    var inpStrMod = string.replace("x".toRegex(),"$value") // убираем пустоты
+    inpStrMod = inpStrMod.substringAfter("f(x)=") //после "f(x)="
 }
+ */
 /*fun combination (left: Double, right: Double, accuracy: Double, f: (x: Double) -> Double, diff: (x: Double ) -> Double ): Double{
 
     require(f(left) * f(right) < 0) { "You have not assumed right left and right edges" }
