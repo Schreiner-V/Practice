@@ -1,11 +1,15 @@
+import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Orientation
 import javafx.geometry.Orientation.VERTICAL
 import javafx.geometry.Side
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextArea
+import javafx.scene.text.Text
 import org.mariuszgromada.math.mxparser.Expression
 import tornadofx.*
 import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
 
 class MyApp : App(MyView::class)
@@ -33,15 +37,27 @@ class Tab1 : Fragment("Решение") {
         fieldset("Решение", labelPosition = VERTICAL) {
             field("Введите функцию вида: f(x) = 3*sin(x)") {
 
-                // TODO обработка строки
 
                 textfield(inputString) {
                     requestFocus()
                 }
                 button("ОК") {
                     action {
-                        var inpStrMod = inputString.value.replace("\\s".toRegex(), "") // убираем пустоты
+
+                        var inpStrMod = inputString.value.replace("\\s".toRegex(),"") // убираем пустоты
                         inpStrMod = inpStrMod.substringAfter("f(x)=") //после "f(x)="
+
+
+                        /** очень криво,но работает*/
+                        val parameters = inpStrMod.substringAfter(";")
+
+                        val left = parameters.substringBefore(";").toDouble()
+                        val right = parameters.substringBeforeLast(";").substringAfter(";").toDouble()
+                        val accuracy = parameters.substringAfterLast(";").toDouble()
+
+                        inpStrMod = inpStrMod.substringBefore(";")
+
+                        val bis = bisection(left,right,accuracy,inpStrMod)
 
                         this.isDisable = true
                         runAsync {
@@ -50,10 +66,12 @@ class Tab1 : Fragment("Решение") {
                                    |Calculation started...
                                    |""".trimMargin()
                             )
-                            val measured = measureTimedValue {
+                            val measured = measureTimedValue { //
                                 inpStrMod.calculate()
                             }
-                            logsTextArea.appendText("Calculation finished in ${measured.duration}. Result = ${measured.value}\n")
+
+                            logsTextArea.appendText("Calculation finished in ${measured.duration}.\nУравнение f(x)=$inpStrMod на промежутке [$left;$right]\nимеет корень $bis\n" +
+                                    "погрешность составляет $accuracy")
                         } ui {
                             this.isDisable = false
                         }
@@ -76,7 +94,7 @@ class Tab1 : Fragment("Решение") {
 class Tab2 : Fragment("Теория") {
     override val root = form {
         fieldset("Теория", labelPosition = VERTICAL) {
-            textarea {}
+            textarea{}
 
 
         }
@@ -92,15 +110,15 @@ class Tab3 : Fragment("Тест") {
     }
 }
 //получаем x-3x
-
 fun replaceAndCount(string: String, value: Double): Double = string
-    .replace("x", "$value")
-    .calculate()
+        .replace("x", "$value")
+        .calculate()
 
 private fun String.calculate(): Double {
     val expression = Expression(this)
     return expression.calculate()
 }
+// TODO сделать вывод первых трех(?) уточнений корня, погрешности, итерации,если корень посчитан точно, то сообщить и т.д.
 
 fun bisection(left: Double, right: Double, accuracy: Double, function: String): Double {
     var newLeftEdge: Double = left
@@ -109,92 +127,68 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
 
     while (newRightEdge - newLeftEdge >= accuracy) {
         result = (newLeftEdge + newRightEdge) / 2
-        //замена + калькулятор для result
-        val fResult = replaceAndCount("3*x+3", value = result)
-        val fLeft = replaceAndCount("3*x+3", value = newLeftEdge)
+
+        val fResult = replaceAndCount(function, value = result)
+        val fLeft = replaceAndCount(function, value = newLeftEdge)
 
         if (fResult == 0.0) {
             break
         }
+
         if (fResult * fLeft < 0) {
             newRightEdge = result
         } else {
             newLeftEdge = result
         }
     }
+
     return result
 }
-
-
-/*fun replaceAndCount(string: String,value: Double){
-    var inpStrMod = string.replace("x".toRegex(),"$value") // убираем пустоты
-    inpStrMod = inpStrMod.substringAfter("f(x)=") //после "f(x)="
+//TODO производная
+/*
+fun replaceAndDerivatives(string: String,value: Double,degree: Double): Double {
+    var expression = Expression("der($string),x,1")
+    expression = expression.replace("x","$value")
+    return expression.calculate()
 }
- */
-/*fun combination (left: Double, right: Double, accuracy: Double, f: (x: Double) -> Double, diff: (x: Double ) -> Double ): Double{
+*/
 
+
+/*
+fun interashion(left: Double, right: Double,accuracy: Double,function: String): Double {
+
+    // Проверка
+    var x1 = (left + right)/2.0
+
+    var newLeftEdge:Double = left;
+    var newRightEdge:Double = right;
+
+
+
+    var fLeft = replaceAndCount(function,value = left)
+    var fRight = replaceAndCount(function, value = right)
+
+fun combination (left: Double, right: Double, accuracy: Double, f: (x: Double) -> Double, diff: (x: Double ) -> Double ): Double{
     require(f(left) * f(right) < 0) { "You have not assumed right left and right edges" }
-
     //http://dit.isuct.ru/IVT/sitanov/Literatura/M501/Pages/Glava2_5.htm
-
     var SecondDiff:Double = diff (diff( f(x) ) ) //
     var newLeftEdge:Double = left
     var newRightEdge:Double = right
-
     if diff(F)*SecondDiff(F) < 0{ //меняем значения
-
         newLeftEdge = newLeftEdge + newRightEdge
         newRightEdge = newLeftEdge - newRightEdge
         newLeftEdge = newLeftEdge - newRightEdge
-
     }
-
     while accuracy >= abs(newRightEdge - newLeftEdge){
-
         int newLeftEdge = newLeftEdge - (F(newLeftEdge)*(newRightEdge - newLeftEdge))/(F(newRightEdge) - F(newLeftEdge))
         int newRightEdge = newRightEdge - F(newRightEdge) / diff(F(newRightEdge))
-
     }
-
     result = abs(newRightEdge - newLeftEdge)
-
     return result
-
 }
 
-
-fun interashion(left: Double, right: Double,accuracy: Double, F: (x: Double) -> Double): Double {
-    // Проверка
-
-    require(F(left) * F(right) < 0) { "You have not assumed right left and right edges" }
-
-    //http://www.machinelearning.ru/wiki/index.php?title=%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%8B%D1%85_%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B9
-    //https://www.youtube.com/watch?v=fkkYVuUPzxc
-
-
-    var newLeftEdge:Double = left
-    var newRightEdge:Double = right
-
-    var x0:Double = (left + right) / 2
-    var result:Double = F(x0);
-
-    do {
-        x0 = result
-        result = f(x0)
-        if (newRightEdge < x0 < newLeftEdge){
-            break
-        }
-        while abs( x0 - x1 ) < accuracy
-    }
-
-    return result
-
-}
-*/
+ */
 
 fun main(args: Array<String>) {
     launch<MyApp>(args)
 }
-
-
-
