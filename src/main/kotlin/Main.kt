@@ -118,7 +118,7 @@ private fun String.calculate(): Double {
     val expression = Expression(this)
     return expression.calculate()
 }
-// TODO сделать вывод первых трех(?) уточнений корня, погрешности, итерации,если корень посчитан точно, то сообщить и т.д.
+// TODO сделать вывод первых трех уточнений корня, погрешности, итерации,если корень посчитан точно, то сообщить и т.д.
 
 fun bisection(left: Double, right: Double, accuracy: Double, function: String): Double {
     var newLeftEdge: Double = left
