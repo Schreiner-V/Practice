@@ -1,16 +1,14 @@
-import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.geometry.Orientation
 import javafx.geometry.Orientation.VERTICAL
 import javafx.geometry.Side
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextArea
-import javafx.scene.text.Text
 import org.mariuszgromada.math.mxparser.Expression
 import tornadofx.*
+import kotlin.math.abs
 import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
+
 
 class MyApp : App(MyView::class)
 
@@ -44,31 +42,35 @@ class Tab1 : Fragment("Решение") {
                 button("ОК") {
                     action {
 
-                        var inpStrMod = inputString.value.replace("\\s".toRegex(),"") // убираем пустоты
+                        var inpStrMod = inputString.value.replace("\\s".toRegex(), "") // убираем пустоты
                         inpStrMod = inpStrMod.substringAfter("f(x)=") //после "f(x)="
 
 
                         /** очень криво,но работает*/
                         val parameters = inpStrMod.substringAfter(";")
-
                         val left = parameters.substringBefore(";").toDouble()
                         val right = parameters.substringBeforeLast(";").substringAfter(";").toDouble()
                         val accuracy = parameters.substringAfterLast(";").toDouble()
-
                         inpStrMod = inpStrMod.substringBefore(";")
 
-                        val bis = bisection(left,right,accuracy,inpStrMod)
+
+
+                        val bis = bisection(left, right, accuracy, inpStrMod)
 
                         this.isDisable = true
                         runAsync {
                             logsTextArea.appendText(
-                                """-----------------------
+                                    """-----------------------
                                    |Calculation started...
                                    |""".trimMargin()
                             )
                             val measured = measureTimedValue { //
                                 inpStrMod.calculate()
                             }
+                            val e = Expression("der(x^3, x,1.0, )")
+                            println(e.expressionString)
+                            println(e.calculate())
+
 
                             logsTextArea.appendText("Calculation finished in ${measured.duration}.\nУравнение f(x)=$inpStrMod на промежутке [$left;$right]\nимеет корень $bis\n" +
                                     "погрешность составляет $accuracy")
@@ -121,20 +123,20 @@ private fun String.calculate(): Double {
 // TODO сделать вывод первых трех уточнений корня, погрешности, итерации,если корень посчитан точно, то сообщить и т.д.
 
 fun bisection(left: Double, right: Double, accuracy: Double, function: String): Double {
+
     var newLeftEdge: Double = left
     var newRightEdge: Double = right
     var result: Double = newLeftEdge
 
     while (newRightEdge - newLeftEdge >= accuracy) {
+
         result = (newLeftEdge + newRightEdge) / 2
 
-        val fResult = replaceAndCount(function, value = result)
-        val fLeft = replaceAndCount(function, value = newLeftEdge)
+        val fResult = replaceAndCount(function, result)
+        val fLeft = replaceAndCount(function, newLeftEdge)
 
         if (fResult == 0.0) {
-            break
-        }
-
+            break }
         if (fResult * fLeft < 0) {
             newRightEdge = result
         } else {
@@ -144,14 +146,41 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
 
     return result
 }
-//TODO производная
-/*
-fun replaceAndDerivatives(string: String,value: Double,degree: Double): Double {
-    var expression = Expression("der($string),x,1")
-    expression = expression.replace("x","$value")
-    return expression.calculate()
+
+fun der(str: String,value: Double):Double{
+
+    val e = Expression("der($str, x, $value)")
+    return e.calculate()
 }
-*/
+
+//TODO функция второй производной, добавить расчетное время работы функции, доделать итарацию,убрать дичь на 50-й строке
+
+fun secDer(str: String,value: Double):Double {
+return 0.0
+}
+
+fun combination (left: Double, right: Double, accuracy: Double, function: String ): Double {
+
+    //http://cyclowiki.org/wiki/%D0%9A%D0%BE%D0%BC%D0%B1%D0%B8%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9_%D0%BC%D0%B5%D1%82%D0%BE%D0%B4
+
+    var a: Double = left //левый край
+    var b: Double = right // правый край
+    var fA = replaceAndCount(function, left) //функция от a
+    var fB = replaceAndCount(function, right) // функция от b
+
+    while (abs(a - b) > 2 * accuracy) {
+        if (fA * secDer(function, a) < 0) {
+            a -= (fA * (b - a)) / (fB - fA)
+        } else if (fA * secDer(function, a) > 0) {
+            a -= fA / der(function, a)
+        } else if (fB * secDer(function, b) < 0) {
+            b -= fB * (b - a) / (fB - fA)
+        } else if (fB * secDer(function, b) > 0) {
+            b -= fB / der(function, b)
+        }
+    }
+    return (a + b)/2.0
+}
 
 
 /*
@@ -167,25 +196,6 @@ fun interashion(left: Double, right: Double,accuracy: Double,function: String): 
 
     var fLeft = replaceAndCount(function,value = left)
     var fRight = replaceAndCount(function, value = right)
-
-fun combination (left: Double, right: Double, accuracy: Double, f: (x: Double) -> Double, diff: (x: Double ) -> Double ): Double{
-    require(f(left) * f(right) < 0) { "You have not assumed right left and right edges" }
-    //http://dit.isuct.ru/IVT/sitanov/Literatura/M501/Pages/Glava2_5.htm
-    var SecondDiff:Double = diff (diff( f(x) ) ) //
-    var newLeftEdge:Double = left
-    var newRightEdge:Double = right
-    if diff(F)*SecondDiff(F) < 0{ //меняем значения
-        newLeftEdge = newLeftEdge + newRightEdge
-        newRightEdge = newLeftEdge - newRightEdge
-        newLeftEdge = newLeftEdge - newRightEdge
-    }
-    while accuracy >= abs(newRightEdge - newLeftEdge){
-        int newLeftEdge = newLeftEdge - (F(newLeftEdge)*(newRightEdge - newLeftEdge))/(F(newRightEdge) - F(newLeftEdge))
-        int newRightEdge = newRightEdge - F(newRightEdge) / diff(F(newRightEdge))
-    }
-    result = abs(newRightEdge - newLeftEdge)
-    return result
-}
 
  */
 
