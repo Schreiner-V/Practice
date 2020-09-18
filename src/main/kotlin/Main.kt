@@ -112,7 +112,7 @@ class Tab3 : Fragment("Тест") {
     }
 }
 //получаем x-3x
-fun replaceAndCount(string: String, value: Double): Double = string
+fun replaceAndCount(string: String, value: Double): Double = string // расширение класса  без наследования, https://tproger.ru/articles/kotlin-magic-functions/
         .replace("x", "$value")
         .calculate()
 
