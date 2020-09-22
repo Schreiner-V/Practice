@@ -35,7 +35,6 @@ class Tab1 : Fragment("Решение") {
         fieldset("Решение", labelPosition = VERTICAL) {
             field("Введите функцию вида: f(x) = 3*sin(x)") {
 
-
                 textfield(inputString) {
                     requestFocus()
                 }
@@ -56,6 +55,7 @@ class Tab1 : Fragment("Решение") {
 
 
                         val bis = bisection(left, right, accuracy, inpStrMod)
+                        //val comb = combination(left, right, accuracy, inpStrMod)
 
                         this.isDisable = true
                         runAsync {
@@ -68,12 +68,11 @@ class Tab1 : Fragment("Решение") {
                                 inpStrMod.calculate()
                             }
                             val e = Expression("der(x^3, x,1.0, )")
-                            println(e.expressionString)
-                            println(e.calculate())
-
 
                             logsTextArea.appendText("Calculation finished in ${measured.duration}.\nУравнение f(x)=$inpStrMod на промежутке [$left;$right]\nимеет корень $bis\n" +
-                                    "погрешность составляет $accuracy")
+                                        "погрешность составляет $accuracy" +
+                                    "\n комбинаторный метод даёт: ")
+
                         } ui {
                             this.isDisable = false
                         }
@@ -96,9 +95,7 @@ class Tab1 : Fragment("Решение") {
 class Tab2 : Fragment("Теория") {
     override val root = form {
         fieldset("Теория", labelPosition = VERTICAL) {
-            textarea{}
-
-
+            text("Введение")
         }
     }
 }
@@ -129,7 +126,6 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
     var result: Double = newLeftEdge
 
     while (newRightEdge - newLeftEdge >= accuracy) {
-
         result = (newLeftEdge + newRightEdge) / 2
 
         val fResult = replaceAndCount(function, result)
@@ -144,6 +140,8 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
         }
     }
 
+    println(secDer(function,1.0))
+
     return result
 }
 
@@ -152,16 +150,24 @@ fun der(str: String,value: Double):Double{
     val e = Expression("der($str, x, $value)")
     return e.calculate()
 }
-
 //TODO функция второй производной, добавить расчетное время работы функции, доделать итарацию,убрать дичь на 50-й строке
 
+
+
+/**НУЖНА ВТОРАЯ ПРОИЗВОДНАЯ, У МЕНЯ ВЫДАЕТ NAN*/
 fun secDer(str: String,value: Double):Double {
-return 0.0
+
+    var ew = Expression("dern((x^3,x,3),2)") // https://mathparser.org/mxparser-math-collection/calculus-operators/
+    println(ew.calculate())
+
+    return ew.calculate()
+
 }
 
 fun combination (left: Double, right: Double, accuracy: Double, function: String ): Double {
 
     //http://cyclowiki.org/wiki/%D0%9A%D0%BE%D0%BC%D0%B1%D0%B8%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9_%D0%BC%D0%B5%D1%82%D0%BE%D0%B4
+    //
 
     var a: Double = left //левый край
     var b: Double = right // правый край
@@ -181,23 +187,6 @@ fun combination (left: Double, right: Double, accuracy: Double, function: String
     }
     return (a + b)/2.0
 }
-
-
-/*
-fun interashion(left: Double, right: Double,accuracy: Double,function: String): Double {
-
-    // Проверка
-    var x1 = (left + right)/2.0
-
-    var newLeftEdge:Double = left;
-    var newRightEdge:Double = right;
-
-
-
-    var fLeft = replaceAndCount(function,value = left)
-    var fRight = replaceAndCount(function, value = right)
-
- */
 
 fun main(args: Array<String>) {
     launch<MyApp>(args)
