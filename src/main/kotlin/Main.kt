@@ -38,6 +38,12 @@ class Tab1 : Fragment("Решение") {
                 textfield(inputString) {
                     requestFocus()
                 }
+                /*
+                checkbox("Метод бисекции") { action{} }
+                checkbox("Метод итерации") { action{} }
+                checkbox("Комбинированный метод") { action{} }
+
+                 */
                 button("ОК") {
                     action {
 
