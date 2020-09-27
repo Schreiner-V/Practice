@@ -26,9 +26,8 @@ fun String.calculate(): Double = Expression(this).calculate()
 fun der(expression: String, argument: Double) = "der($expression, x, $argument)".calculate()
 
 //TODO добавить расчетное время работы функций, графики, выгрузить теорию и тесты
-//TODO разобраться в каких случаях работает итерация, она работает с примером с сайта
 //TODO попробовать выводить случаи если корень посчитан точно, оформить выводы методов
-//TODO тесты, разобраться с тестами
+//TODO тесты, разобраться с тестами +
 
 /**
  * Вторая производная. Функция dern работает с ошибкой, поэтому используем der(der()).
@@ -76,7 +75,6 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
 fun combination(left: Double, right: Double, accuracy: Double, function: String): Double {
     //http://cyclowiki.org/wiki/%D0%9A%D0%BE%D0%BC%D0%B1%D0%B8%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9_%D0%BC%D0%B5%D1%82%D0%BE%D0%B4
     //
-    fun startTimer() {}
 
     var a: Double = left //левый край
     var b: Double = right // правый край
@@ -98,7 +96,6 @@ fun combination(left: Double, right: Double, accuracy: Double, function: String)
             b -= fB * (b - a) / (fB - fA)
         }
         if (secDer(function, a) * secDer(function, b) == 0.0) {
-            println("Вторая производная = 0, нельзя решить данным методом ")
             break
         }
     }
