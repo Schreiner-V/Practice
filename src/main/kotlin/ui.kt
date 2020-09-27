@@ -12,6 +12,7 @@ class MyApp : App(MyView::class)
 
 class MyView : View() {
     override val root =
+<<<<<<< HEAD
             tabpane {
                 tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
                 side = Side.BOTTOM
@@ -20,6 +21,16 @@ class MyView : View() {
                 tab<Tab2>()
                 tab<Tab3>()
             }
+=======
+        tabpane {
+            tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
+            side = Side.BOTTOM
+
+            tab<Tab1>()
+            tab<Tab2>()
+            tab<Tab3>()
+        }
+>>>>>>> a2c8976ab101d1d5291bf1c93e00443c9adff276
 }
 
 class Tab1 : Fragment("Решение") {
@@ -67,7 +78,11 @@ class Tab1 : Fragment("Решение") {
                         this.isDisable = true
                         runAsync {
                             logsTextArea.appendText(
+<<<<<<< HEAD
                                     """-----------------------
+=======
+                                """-----------------------
+>>>>>>> a2c8976ab101d1d5291bf1c93e00443c9adff276
                                    |Calculation started...
                                    |""".trimMargin()
                             )
@@ -77,9 +92,15 @@ class Tab1 : Fragment("Решение") {
                             val e = Expression("der(x^3, x,1.0, )")
 
                             logsTextArea.appendText(
+<<<<<<< HEAD
                                     "Calculation finished in ${measured.duration}.\nУравнение f(x)=$inpStrMod на промежутке [$left;$right]\nимеет корень $bis\n" +
                                             "погрешность составляет $accuracy" +
                                             "\n комбинаторный метод даёт: "
+=======
+                                "Calculation finished in ${measured.duration}.\nУравнение f(x)=$inpStrMod на промежутке [$left;$right]\nимеет корень $bis\n" +
+                                        "погрешность составляет $accuracy" +
+                                        "\n комбинаторный метод даёт: "
+>>>>>>> a2c8976ab101d1d5291bf1c93e00443c9adff276
                             )
 
                         } ui {
