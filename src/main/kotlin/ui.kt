@@ -1,6 +1,8 @@
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.geometry.Side
+import javafx.scene.chart.CategoryAxis
+import javafx.scene.chart.NumberAxis
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextArea
 import org.mariuszgromada.math.mxparser.Expression
@@ -13,6 +15,7 @@ class MyApp : App(MyView::class)
 class MyView : View() {
     override val root =
             tabpane {
+
                 tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
                 side = Side.BOTTOM
 
@@ -31,20 +34,14 @@ class Tab1 : Fragment("Решение") {
     @ExperimentalTime
     override val root = form {
         fieldset("Решение", labelPosition = Orientation.VERTICAL) {
-            field("Введите функцию вида: f(x) = 3*sin(x)") {
+            field("Введите функцию вида: f(x) = 3*sin(x) и перечислите через ';' границы промежутка и погрешность ") {
 
                 textfield(inputString) {
                     requestFocus()
                 }
-
-                /*
                 checkbox("Метод бисекции") { action{} }
-                checkbox("Метод итерации") { action{
-                    textfield(""){}//Для итерации нужен ввод обратной функции
-                } }
+                checkbox("Метод итерации") { action{} }
                 checkbox("Комбинированный метод") { action{} }
-
-                 */
 
                 button("ОК") {
                     action {
@@ -62,7 +59,19 @@ class Tab1 : Fragment("Решение") {
 
 
                         val bis = bisection(left, right, accuracy, inpStrMod)
-                        //val comb = combination(left, right, accuracy, inpStrMod)
+                        val comb = combination(left, right, accuracy, inpStrMod)
+                        val iter = iteration(left, right, accuracy,inpStrMod)
+
+                        val arrayBis = graphic(-10.0, 10.0, inpStrMod)
+
+                        linechart("График поведения функции", NumberAxis(), NumberAxis()) {
+                            series("График f(x)") {
+                                for (i in 1..100){
+                                    println("[${arrayBis[i-1][0]}]-[${arrayBis[i-1][1]}]")
+                                    data(arrayBis[i-1][0],arrayBis[i-1][1])
+                                }
+                            }
+                        }
 
                         this.isDisable = true
                         runAsync {
@@ -74,12 +83,11 @@ class Tab1 : Fragment("Решение") {
                             val measured = measureTimedValue { //
                                 inpStrMod.calculate()
                             }
-                            val e = Expression("der(x^3, x,1.0, )")
 
                             logsTextArea.appendText(
                                     "Calculation finished in ${measured.duration}.\nУравнение f(x)=$inpStrMod на промежутке [$left;$right]\nимеет корень $bis\n" +
                                             "погрешность составляет $accuracy" +
-                                            "\n комбинаторный метод даёт: "
+                                            "\n комбинаторный метод даёт:$comb"
                             )
 
                         } ui {
@@ -87,6 +95,7 @@ class Tab1 : Fragment("Решение") {
                         }
                     }
                 }
+
             }
         }
         fieldset("Ход выполнения") {
@@ -97,12 +106,14 @@ class Tab1 : Fragment("Решение") {
                 isMouseTransparent = true
                 isFocusTraversable = false
             }
+
         }
     }
 }
 
 class Tab2 : Fragment("Теория") {
     override val root = form {
+
         fieldset("Теория", labelPosition = Orientation.VERTICAL) {
             text("Введение")
         }
@@ -117,3 +128,20 @@ class Tab3 : Fragment("Тест") {
         }
     }
 }
+
+
+
+    fun graphic(left: Double,right: Double,function: String): Array<DoubleArray> {
+
+        var frequency = (right - left)/100.0
+        var newleft = left
+        val points = Array(100) { DoubleArray(2) }
+
+        for (i in 1..100){
+            newleft += frequency
+            points[i-1][0] = (newleft) // x
+            points[i-1][1] = function.replaceAndCount((newleft)) // y
+        }
+    return points
+    }
+
