@@ -1,6 +1,5 @@
 import org.mariuszgromada.math.mxparser.Expression
 import kotlin.math.abs
-import kotlin.math.min
 
 /* Как работают функции типа String. или любой другой объект Int.
 Допустим, у тебя есть какой-то объект из "чужого" API, методы которого ты не сможешь изменить.
@@ -57,7 +56,6 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
         val fResult = function.replaceAndCount(result)
         val fLeft = function.replaceAndCount(newLeftEdge)
 
-
         if (fResult == 0.0) {
             break
         }
@@ -72,20 +70,15 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
     return result
 }
 
+//http://cyclowiki.org/wiki/%D0%9A%D0%BE%D0%BC%D0%B1%D0%B8%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9_%D0%BC%D0%B5%D1%82%D0%BE%D0%B4
 fun combination(left: Double, right: Double, accuracy: Double, function: String): Double {
-    //http://cyclowiki.org/wiki/%D0%9A%D0%BE%D0%BC%D0%B1%D0%B8%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9_%D0%BC%D0%B5%D1%82%D0%BE%D0%B4
-    //
-
     var a: Double = left //левый край
     var b: Double = right // правый край
     var iter = 0
 
     while (abs(b - a) > 2 * accuracy) {
-
         val fA = function.replaceAndCount(a)
         val fB = function.replaceAndCount(b)
-
-
 
         if (fA * secDer(function, a) < 0) {
             a -= (fA * (b - a) / (fB - fA))
@@ -99,25 +92,22 @@ fun combination(left: Double, right: Double, accuracy: Double, function: String)
             break
         }
     }
-        return ((a + b) / 2.0)
-
+    return ((a + b) / 2.0)
 }
 
-fun iteration(left: Double,right: Double,accuracy: Double,function: String):Double{
-
-
+fun iteration(left: Double, right: Double, accuracy: Double, function: String): Double {
     var iter = 0
     var x1 = 2.0
-do {
-    println("$iter. x1 = $x1")
-    var x0 = x1
-    x1 = function.replaceAndCount(x0)
-    iter++
-    if ((x0 < left) or (x0 > right)) {
-        println("Ошибка")
-        break
-    }
-} while (abs(x0 - x1) > accuracy)
+    do {
+        println("$iter. x1 = $x1")
+        val x0 = x1
+        x1 = function.replaceAndCount(x0)
+        iter++
+        if ((x0 < left) or (x0 > right)) {
+            println("Ошибка")
+            break
+        }
+    } while (abs(x0 - x1) > accuracy)
 
     return x1
 }
