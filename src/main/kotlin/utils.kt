@@ -111,3 +111,7 @@ fun iteration(left: Double, right: Double, accuracy: Double, function: String): 
 
     return x1
 }
+
+enum class Method {
+    BISECTION, ITERATION, COMBO
+}

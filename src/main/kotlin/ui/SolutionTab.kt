@@ -1,62 +1,87 @@
 package ui
 
+import Method
+import Method.BISECTION
+import Method.COMBO
+import Method.ITERATION
 import bisection
 import calculate
 import combination
 import iteration
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
+import javafx.scene.chart.NumberAxis
 import javafx.scene.control.TextArea
-import javafx.scene.control.ToggleGroup
 import replaceAndCount
 import tornadofx.*
 import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import kotlin.time.measureTimedValue
 
 class SolutionTab : Fragment("Решение") {
 
     private val inputString = SimpleStringProperty()
     private val leftBorder = SimpleStringProperty()
     private val rightBorder = SimpleStringProperty()
-    private val error = SimpleStringProperty()
+    private val accuracy = SimpleStringProperty()
     private var logsTextArea: TextArea by singleAssign()
-    private val toggleGroup = ToggleGroup()
+
+    private val selectedMethod = SimpleObjectProperty<Method>()
 
     @ExperimentalTime
     override val root = form {
         fieldset("Решение", labelPosition = Orientation.VERTICAL) {
-            field("Введите функцию вида: f(x) = 3*sin(x) и перечислите через ';' границы промежутка и погрешность") {
+            field {
+                label("f(x)=")
                 textfield(inputString) {
-                    requestFocus()
+                    promptText = "x^2"
                 }
             }
-            field("Укажите границы промежутка и погрешность") {
-                textfield(leftBorder) {}
-                textfield(rightBorder) {}
-                textfield(error) {}
+            field {
+                label("Левая граница")
+                textfield(leftBorder) {
+                    promptText = "-3"
+                }
             }
             field {
-                radiobutton("Метод бисекции", toggleGroup)
-                radiobutton("Метод итерации", toggleGroup)
-                radiobutton("Комбинированный метод", toggleGroup)
+                label("Правая граница")
+                textfield(rightBorder) {
+                    promptText = "32"
+                }
             }
             field {
-                button("ОК") {
+                label("Погрешность")
+                textfield(accuracy) {
+                    promptText = "0.001"
+                }
+            }
+            field {
+                togglegroup {
+                    selectedMethod.bind(selectedValueProperty())
+                    radiobutton("Метод бисекции", value = BISECTION) {
+                        isSelected = true
+                    }
+                    radiobutton("Метод итерации", value = ITERATION)
+                    radiobutton("Комбинированный метод", value = COMBO)
+                }
+            }
+            field {
+                button("Рассчитать") {
                     action {
                         this.isDisable = true
                         runAsync {
-                            logsTextArea.appendText("-----------------------\nCalculation started...\n")
+                            logsTextArea.appendText("-----------------------\nРасчёт начался...\n")
 
-                            val duration = measureTime {
-                                val inputString = handleRun(inputString.value)
-                                inputString.calculate()
+                            val timedValue = measureTimedValue {
+                                handleRun(inputString.value, leftBorder.value, rightBorder.value, accuracy.value, selectedMethod.value)
                             }
 
-//                            logsTextArea.appendText(
-//                                "Calculation finished in $duration.\nУравнение f(x)=$inputString на промежутке [$left;$right]\nимеет корень $bis\n" +
-//                                        "погрешность составляет $accuracy" +
-//                                        "\n комбинаторный метод даёт:$comb"
-//                            )
+                            logsTextArea.appendText(
+                                """Уравнение f(x)=${inputString.value} на промежутке [${leftBorder.value};${rightBorder.value}]
+                                   |имеет корень ${timedValue.value} погрешность составляет ${accuracy.value}.
+                                   |Расчёт был выполнен за ${timedValue.duration}.
+                                   |""".trimMargin()
+                            )
                         } ui {
                             this.isDisable = false
                         }
@@ -64,6 +89,18 @@ class SolutionTab : Fragment("Решение") {
                 }
             }
         }
+
+//        val arrayBis = graphic(-10.0, 10.0, inpStrMod)
+
+//        linechart("График поведения функции", NumberAxis(), NumberAxis()) {
+//            series("График f(x)") {
+//                for (i in 1..100){
+//                    println("[${arrayBis[i-1][0]}]-[${arrayBis[i-1][1]}]")
+//                    data(arrayBis[i-1][0],arrayBis[i-1][1])
+//                }
+//            }
+//        }
+
         fieldset("Ход выполнения") {
             textarea() {
                 logsTextArea = this
@@ -75,27 +112,26 @@ class SolutionTab : Fragment("Решение") {
     }
 }
 
-private fun handleRun(inputString: String): String {
-    var inpStrMod = inputString.replace("\\s".toRegex(), "") // убираем пустоты
-    inpStrMod = inpStrMod.substringAfter("f(x)=") //после "f(x)="
+private fun handleRun(
+    inputString: String,
+    leftBorder: String,
+    rightBorder: String,
+    accuracyString: String,
+    method: Method
+): Double {
+    val left = leftBorder.toDouble()
+    val right = rightBorder.toDouble()
+    val accuracy = accuracyString.toDouble()
 
+    val result = when (method) {
+        BISECTION -> bisection(left, right, accuracy, inputString)
+        ITERATION -> iteration(left, right, accuracy, inputString)
+        COMBO -> combination(left, right, accuracy, inputString)
+    }.toString()
 
-    /** очень криво,но работает*/
-    val parameters = inpStrMod.substringAfter(";")
-    val left = parameters.substringBefore(";").toDouble()
-    val right = parameters.substringBeforeLast(";").substringAfter(";").toDouble()
-    val accuracy = parameters.substringAfterLast(";").toDouble()
-    inpStrMod = inpStrMod.substringBefore(";")
-
-
-    val bis = bisection(left, right, accuracy, inpStrMod)
-    val comb = combination(left, right, accuracy, inpStrMod)
-    // TODO!!! Не используется, надо бы удалить, либо использовать
-    val iter = iteration(left, right, accuracy, inpStrMod)
-
-    val arrayBis = graphic(-10.0, 10.0, inpStrMod)
-
-    return inpStrMod
+    return inputString
+        .replace("x", result)
+        .calculate()
 }
 
 fun graphic(left: Double, right: Double, function: String): Array<DoubleArray> {
