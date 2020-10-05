@@ -11,7 +11,7 @@ import iteration
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
-import javafx.geometry.Orientation
+import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
 import javafx.scene.control.TextArea
@@ -36,23 +36,23 @@ class SolutionTab : Fragment("Решение") {
 
     @ExperimentalTime
     override val root = form {
-        fieldset("Решение", labelPosition = Orientation.VERTICAL) {
+        fieldset("Решение", labelPosition = VERTICAL) {
             field {
                 label("f(x)=")
                 textfield(inputString) {
-                    promptText = "x^2"
+                    promptText = "x"
                 }
             }
             field {
                 label("Левая граница")
                 textfield(leftBorder) {
-                    promptText = "-3"
+                    promptText = "-10"
                 }
             }
             field {
                 label("Правая граница")
                 textfield(rightBorder) {
-                    promptText = "32"
+                    promptText = "10"
                 }
             }
             field {
