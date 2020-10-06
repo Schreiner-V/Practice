@@ -64,9 +64,7 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
         } else {
             newLeftEdge = result
         }
-        println("$iter . left - $newLeftEdge | right - $newRightEdge | x - $result")
     }
-
     return result
 }
 
@@ -92,6 +90,7 @@ fun combination(left: Double, right: Double, accuracy: Double, function: String)
             break
         }
     }
+    println((a + b) / 2.0)
     return ((a + b) / 2.0)
 }
 
@@ -108,7 +107,7 @@ fun iteration(left: Double, right: Double, accuracy: Double, function: String): 
             break
         }
     } while (abs(x0 - x1) > accuracy)
-
+    println(x1)
     return x1
 }
 

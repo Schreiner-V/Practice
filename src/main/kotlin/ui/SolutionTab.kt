@@ -21,7 +21,7 @@ import kotlin.math.abs
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
-private const val POINTS_COUNT_IN_GRAPH = 50
+private const val POINTS_COUNT_IN_GRAPH = 100
 
 class SolutionTab : Fragment("Решение") {
 
@@ -83,6 +83,7 @@ class SolutionTab : Fragment("Решение") {
                         val right = rightBorder.value.toDouble()
 
                         runAsync {
+                            logsTextArea.clear()
                             logsTextArea.appendText("-----------------------\nРасчёт начался...\n")
 
                             val timedValue = measureTimedValue {
@@ -95,6 +96,8 @@ class SolutionTab : Fragment("Решение") {
                                    |Расчёт был выполнен за ${timedValue.duration}.
                                    |""".trimMargin()
                             )
+                            logsTextArea.appendText("---------------------------------------------\n")
+
                         } ui {
                             chartPoints.clear()
                             chartPoints.addAll(calculateGraphPoints(left, right, inputString.value))
@@ -126,16 +129,18 @@ private fun handleRun(
     rightBorder: Double,
     accuracy: Double,
     method: Method
-): Double {
+): String {
     val result = when (method) {
         BISECTION -> bisection(leftBorder, rightBorder, accuracy, inputString)
         ITERATION -> iteration(leftBorder, rightBorder, accuracy, inputString)
         COMBO -> combination(leftBorder, rightBorder, accuracy, inputString)
     }.toString()
 
-    return inputString
+    inputString
         .replace("x", result)
         .calculate()
+
+    return result
 }
 
 private fun calculateGraphPoints(left: Double, right: Double, function: String): List<XYChart.Data<Number, Number>> {

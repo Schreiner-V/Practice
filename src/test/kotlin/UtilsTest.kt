@@ -1,6 +1,7 @@
 import junit.framework.Assert.assertEquals
 import org.junit.jupiter.api.Test
 
+
 class UtilsTest {
 
     // Влад, вот примерно так можно добавлять тесты. Проверять так гораздо удобнее и правильней
@@ -40,14 +41,14 @@ class UtilsTest {
     @Test
     fun `test bisection`() {
         assertEquals(1.5, bisection(0.0, 3.0, 0.0001, "x*2 - 3"))
-        assertEquals(-0.7794189453125, bisection(-10.0, 10.0, 0.001, "x^3+3*x^2+12*x+8"))
+        assertEquals(-0.77850341796875, bisection(-10.0, 12.0, 0.001, "x^3+3*x^2+12*x+8"))
         assertEquals(3.1455078125, bisection(1.0, 5.0, 0.001, "ln(x)-x+2"))
     }
 
     @Test
     fun `test combination`() {
         assertEquals(1.5, combination(0.0, 3.0, 0.0001, "x*2 - 3"))
-        assertEquals(-0.7789948387195731, combination(-10.0, 10.0, 0.001, "x^3+3*x^2+12*x+8"))
+        assertEquals(-0.7789543046451879, combination(-10.0, 12.0, 0.001, "x^3+3*x^2+12*x+8"))
         assertEquals(3.1461930966412504, combination(1.0, 5.0, 0.001, "ln(x)-x+2"))
     }
 
