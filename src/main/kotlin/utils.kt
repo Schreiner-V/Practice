@@ -1,5 +1,6 @@
 import org.mariuszgromada.math.mxparser.Expression
 import kotlin.math.abs
+import kotlin.math.sign
 
 /* Как работают функции типа String. или любой другой объект Int.
 Допустим, у тебя есть какой-то объект из "чужого" API, методы которого ты не сможешь изменить.
@@ -74,7 +75,7 @@ fun combination(left: Double, right: Double, accuracy: Double, function: String)
     var b: Double = right // правый край
     var iter = 0
 
-    while (abs(b - a) > 2 * accuracy) {
+    while ((abs(b - a) > 2 * accuracy) and (secDer(function,a) * secDer(function, b) != 0.0)) { // изменить на сравнение знаков, так быстрее
         val fA = function.replaceAndCount(a)
         val fB = function.replaceAndCount(b)
 
@@ -86,11 +87,7 @@ fun combination(left: Double, right: Double, accuracy: Double, function: String)
             a -= fA / der(function, a)
             b -= fB * (b - a) / (fB - fA)
         }
-        if (secDer(function, a) * secDer(function, b) == 0.0) {
-            break
-        }
     }
-    println((a + b) / 2.0)
     return ((a + b) / 2.0)
 }
 
@@ -107,7 +104,7 @@ fun iteration(left: Double, right: Double, accuracy: Double, function: String): 
             break
         }
     } while (abs(x0 - x1) > accuracy)
-    println(x1)
+
     return x1
 }
 
