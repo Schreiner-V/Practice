@@ -30,7 +30,7 @@ class SolutionTab : Fragment("Решение") {
     private val rightBorder = SimpleStringProperty()
     private val accuracy = SimpleStringProperty()
     private var logsTextArea: TextArea by singleAssign()
-    private val selectedMethod = SimpleObjectProperty<Method>()
+    private val selectedMethod = SimpleObjectProperty<Method>() //выбранный метод -> на enum
 
     private val chartPoints = FXCollections.observableArrayList<XYChart.Data<Number, Number>>()
 
@@ -73,7 +73,7 @@ class SolutionTab : Fragment("Решение") {
             }
             field {
                 button("Рассчитать") {
-                    disableProperty()
+                    disableProperty() //кнопка неактивно пока:
                         .bind(inputString.isEmpty
                         .or(leftBorder.isEmpty)
                         .or(rightBorder.isEmpty)

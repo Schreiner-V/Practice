@@ -8,5 +8,8 @@ class TheoryTab : Fragment("Теория") {
         fieldset("Теория", labelPosition = VERTICAL) {
             text("Введение")
         }
+        fieldset(){
+
+        }
     }
 }
