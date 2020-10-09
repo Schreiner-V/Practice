@@ -48,24 +48,26 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
     var newLeftEdge: Double = left
     var newRightEdge: Double = right
     var result: Double = newLeftEdge
-    var iter = 0
 
-    while (newRightEdge - newLeftEdge >= accuracy) {
-        iter++
-        result = (newLeftEdge + newRightEdge) / 2.0
+    if (sign(function.replaceAndCount(left))!=sign(function.replaceAndCount(right))) { // f(left)!=f(right)
 
-        val fResult = function.replaceAndCount(result)
-        val fLeft = function.replaceAndCount(newLeftEdge)
+        while (newRightEdge - newLeftEdge >= accuracy) {
+            result = (newLeftEdge + newRightEdge) / 2.0
 
-        if (fResult == 0.0) {
-            break
-        }
-        if (fResult * fLeft < 0) {
-            newRightEdge = result
-        } else {
-            newLeftEdge = result
+            val fResult = function.replaceAndCount(result)
+            val fLeft = function.replaceAndCount(newLeftEdge)
+
+            if (fResult == 0.0) {
+                break
+            }
+            if (fResult * fLeft < 0) {
+                newRightEdge = result
+            } else {
+                newLeftEdge = result
+            }
         }
     }
+    // логика такая что: если не удовлетворяет условия, возвращает левый край, чего быть не может т.к. -> т.е. условие будет: если result != left
     return result
 }
 
@@ -73,9 +75,8 @@ fun bisection(left: Double, right: Double, accuracy: Double, function: String): 
 fun combination(left: Double, right: Double, accuracy: Double, function: String): Double {
     var a: Double = left //левый край
     var b: Double = right // правый край
-    var iter = 0
 
-    while ((abs(b - a) > 2 * accuracy) and (secDer(function,a) * secDer(function, b) != 0.0)) { // изменить на сравнение знаков, так быстрее
+    while ((abs(b - a) > accuracy) and (secDer(function,a) * secDer(function, b) != 0.0)) { // изменить на сравнение знаков, так быстрее
         val fA = function.replaceAndCount(a)
         val fB = function.replaceAndCount(b)
 

@@ -14,11 +14,13 @@ import javafx.collections.FXCollections
 import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
+import javafx.scene.control.CheckBox
 import javafx.scene.control.TextArea
 import replaceAndCount
 import tornadofx.*
 import kotlin.math.abs
 import kotlin.time.ExperimentalTime
+import kotlin.time.TimedValue
 import kotlin.time.measureTimedValue
 
 private const val POINTS_COUNT_IN_GRAPH = 100
@@ -89,14 +91,33 @@ class SolutionTab : Fragment("Решение") {
                             val timedValue = measureTimedValue {
                                 handleRun(inputString.value, left, right, accuracy.value.toDouble(), selectedMethod.value)
                             }
+                                val result = timedValue.value.toDouble()
+                                val verification = inputString.value.replaceAndCount(result)
 
-                            logsTextArea.appendText(
-                                """Уравнение f(x)=${inputString.value} на промежутке [${leftBorder.value};${rightBorder.value}]
+                            //заменить на when
+
+                                if (verification == 0.0) {
+                                    logsTextArea.appendText(
+                                            """Уравнение f(x)=${inputString.value} на промежутке [${leftBorder.value};${rightBorder.value}]
+                                   |имеет корень точный корень равный ${timedValue.value}, расчет был выполнен за ${timedValue.duration}.
+                                   |""".trimMargin()
+                                    )
+                                } else if (result != left) {
+
+                                    //TODO возможно получится преобразовать NaN в строку и вывести ошибки.
+                                    // график приближения
+
+                                    logsTextArea.appendText(
+                                            """Уравнение f(x)=${inputString.value} на промежутке [${leftBorder.value};${rightBorder.value}]
                                    |имеет корень ${timedValue.value} погрешность составляет ${accuracy.value}.
                                    |Расчёт был выполнен за ${timedValue.duration}.
                                    |""".trimMargin()
-                            )
-                            logsTextArea.appendText("---------------------------------------------\n")
+                                    )
+                                    logsTextArea.appendText("---------------------------------------------\n")
+                                }
+                                else{
+                                    logsTextArea.appendText("""Уравнение f(x)=${inputString.value} не может быть решено выбранным методом""")
+                                }
 
                         } ui {
                             chartPoints.clear()
@@ -139,7 +160,6 @@ private fun handleRun(
     inputString
         .replace("x", result)
         .calculate()
-
     return result
 }
 
